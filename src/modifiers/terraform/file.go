@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,26 +12,24 @@ import (
 	"time"
 )
 
-func extractTfFile(
+func (tf *FileTerraform) extractTfFile(
 	tfFileName string,
 	tfResult map[string]map[string]string,
 ) error {
-	log.SetPrefix("[extractTfFile]")
-	log.Println("Start")
-	defer log.Println("Exit")
+	tf.logger.Info("Start")
+	defer tf.logger.Info("Exit")
 
 	err := commonutil.IsMapValid(tfResult)
 	if err != nil {
 		errMsg := errors.New("Error :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Error(errMsg.Error())
 		return errMsg
 	}
-	log.SetPrefix("[extractTfFile]")
 
 	currDir, err := os.Getwd()
 	if err != nil {
 		errMsg := errors.New("Problem with getting current directory :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Error(errMsg.Error())
 		return errMsg
 	}
 
@@ -41,7 +38,7 @@ func extractTfFile(
 	file, err := os.Open(pathToFile)
 	if err != nil {
 		errMsg := errors.New("Problem with opening tf file :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Error(errMsg.Error())
 		return errMsg
 	}
 	defer file.Close()
@@ -50,7 +47,7 @@ func extractTfFile(
 	keywordVariable := "variable"
 	keywordClosing := "}"
 
-	log.Println("Obtaining values from tf file...")
+	tf.logger.Info("Obtaining values from tf file...")
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -102,19 +99,18 @@ func extractTfFile(
 	err = scanner.Err()
 	if err != nil {
 		errMsg := errors.New("Problem with scanning tf file :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Error(errMsg.Error())
 		return errMsg
 	}
-	log.Println("Obtaining values from tf file COMPLETED")
+	tf.logger.Info("Obtaining values from tf file COMPLETED")
 
 	return nil
 }
 
-func getTfReplacementText(
+func (tf *FileTerraform) getTfReplacementText(
 	line string,
 	extractedVarNames map[string]string,
 ) (newLine string) {
-	log.SetPrefix("[getTfReplacementText]")
 	newLine = line // init to input value and to return it if no changes were made
 
 	words := strings.Split(line, "=")
@@ -132,7 +128,7 @@ func getTfReplacementText(
 					replacementText = fmt.Sprintf(" data.external.static_secrets.result.%s != \"\" ? 1:0", name)
 
 				default:
-					log.Printf("[WARNING] Unknown parameter :: '%s'. Returning given input.", words[0])
+					tf.logger.Warn(fmt.Sprintf("Unknown parameter :: '%s'. Returning given input.", words[0]))
 				}
 
 				if len(replacementText) > 0 {
@@ -142,31 +138,29 @@ func getTfReplacementText(
 		}
 	}
 
-	log.Println("[DEBUG] " + newLine)
+	tf.logger.Debug(newLine)
 	return
 }
 
-func ReplaceTfContent(
+func (tf *FileTerraform) ReplaceTfContent(
 	tfFileName string,
 	outputData map[string]map[string]string,
 	keepOriginal bool,
 ) error {
-	log.SetPrefix("[replaceTfContent]")
-	log.Println("Start")
-	defer log.Println("Exit")
+	tf.logger.Info("Start")
+	defer tf.logger.Info("Exit")
 
 	err := commonutil.IsMapValid(outputData)
 	if err != nil {
 		errMsg := errors.New("Error :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Info(errMsg.Error())
 		return errMsg
 	}
-	log.SetPrefix("[replaceTfContent]")
 
 	currDir, err := os.Getwd()
 	if err != nil {
 		errMsg := errors.New("Problem with getting current directory :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Info(errMsg.Error())
 		return errMsg
 	}
 
@@ -174,12 +168,12 @@ func ReplaceTfContent(
 	file, err := os.Open(pathToFile)
 	if err != nil {
 		errMsg := errors.New("Problem with opening tf file :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Info(errMsg.Error())
 		return errMsg
 	}
 	defer file.Close()
 
-	log.Println("Extracting unique keys...")
+	tf.logger.Info("Extracting unique keys...")
 	variableNames := make(map[string]string)
 	for _, dataContainer := range outputData {
 		for key := range dataContainer {
@@ -192,7 +186,7 @@ func ReplaceTfContent(
 	}
 
 	if keepOriginal {
-		log.Println("Creating new tf file to store updates...")
+		tf.logger.Info("Creating new tf file to store updates...")
 
 		dateTimeNow := time.Now()
 		year, mth, day := dateTimeNow.Date()
@@ -202,63 +196,61 @@ func ReplaceTfContent(
 		newFile, err := os.Create("new-" + appendFileName + "-" + tfFileName)
 		if err != nil {
 			errMsg := errors.New("Problem with creating new tf file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 		defer newFile.Close()
 
 		writer := bufio.NewWriter(newFile)
 
-		log.Println("Reading tf file...")
+		tf.logger.Info("Reading tf file...")
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
-			result := getTfReplacementText(line, variableNames)
+			result := tf.getTfReplacementText(line, variableNames)
 
 			writer.WriteString(result + "\n")
 		}
-		log.SetPrefix("[replaceTfContent]")
 
 		err = writer.Flush()
 		if err != nil {
 			errMsg := errors.New("Problem with flushing out to new tf file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 
 		err = scanner.Err()
 		if err != nil {
 			errMsg := errors.New("Problem with scanning tf file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 	} else {
-		log.Printf("Amending tf file, %s, with updates...\n", tfFileName)
+		tf.logger.Info(fmt.Sprintf("Amending tf file, %s, with updates...\n", tfFileName))
 		rf, err := ioutil.ReadFile(tfFileName)
 		if err != nil {
 			errMsg := errors.New("Problem with opening tf file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 
 		lines := strings.Split(string(rf), "\n")
 		for i, line := range lines {
-			result := getTfReplacementText(line, variableNames)
+			result := tf.getTfReplacementText(line, variableNames)
 			if result != line {
 				lines[i] = result
 			}
 		}
-		log.SetPrefix("[replaceTfContent]")
 
 		output := strings.Join(lines, "\n")
 		err = ioutil.WriteFile(tfFileName, []byte(output), 0644)
 		if err != nil {
 			errMsg := errors.New("Problem with overwriting tf file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 
-		log.Printf("Amending tf file, %s, with updates COMPLETED\n", tfFileName)
+		tf.logger.Info(fmt.Sprintf("Amending tf file, %s, with updates COMPLETED\n", tfFileName))
 	}
 
 	return nil

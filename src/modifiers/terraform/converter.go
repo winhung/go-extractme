@@ -3,47 +3,44 @@ package modterraform
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 
 	commonutil "tf2json/src/util"
 )
 
-func Tfvar2json(
+func (tf *FileTerraform) Tfvar2json(
 	filename string,
 	outputPath string,
 	allKeyVal map[string]map[string]string,
 ) error {
-	log.SetPrefix("[tfvar2json]")
-	log.Println("Start")
-	defer log.Println("Exit")
+	tf.logger.Debug("Start")
+	defer tf.logger.Info("Exit")
 
 	err := commonutil.IsMapValid(allKeyVal)
 	if err != nil {
 		errMsg := errors.New("Error :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Error(errMsg.Error())
 		return errMsg
 	}
-	log.SetPrefix("[tfvar2json]")
 
-	err = extractTfFile(filename, allKeyVal)
+	err = tf.extractTfFile(filename, allKeyVal)
 	if err != nil {
 		errMsg := errors.New("Problem with extracting tf file :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Error(errMsg.Error())
 		return errMsg
 	}
-	log.SetPrefix("[tfvar2json]")
 
-	log.Println("Preparing for JSON output")
+	tf.logger.Info("Preparing for JSON output")
 	for key, values := range allKeyVal {
-		log.Println("Creating JSON file with filename", key)
+		tf.logger.Info(fmt.Sprintf("Creating JSON file with filename '%s'", key))
 
 		jsonString, err := json.MarshalIndent(values, "", "    ")
 		if err != nil {
 			errMsg := errors.New("Problem with JSON marshalling :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 
@@ -53,12 +50,12 @@ func Tfvar2json(
 				err = os.MkdirAll(outputPath, 0777)
 				if err != nil {
 					errMsg := errors.New("Problem with creating output path :: " + err.Error())
-					log.Println(errMsg)
+					tf.logger.Error(errMsg.Error())
 					return errMsg
 				}
 			} else {
 				errMsg := errors.New("Problem with output path :: " + err.Error())
-				log.Println(errMsg)
+				tf.logger.Error(errMsg.Error())
 				return errMsg
 			}
 		}
@@ -67,7 +64,7 @@ func Tfvar2json(
 		err = ioutil.WriteFile(outputFilepath, jsonString, os.ModePerm)
 		if err != nil {
 			errMsg := errors.New("Problem with writing to JSON file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Error(errMsg.Error())
 			return errMsg
 		}
 	}

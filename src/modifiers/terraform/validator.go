@@ -5,38 +5,36 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 )
 
-func VerifyTfData(
+func (tf *FileTerraform) VerifyTfData(
 	outputFileNames []string,
 	outputDirectory string,
 	inputFileName string,
 ) error {
-	log.SetPrefix("[verifyTfData]")
-	log.Println("Start")
-	defer log.Println("Exit")
+	tf.logger.Info("Start")
+	defer tf.logger.Info("Exit")
 
 	currDir, err := os.Getwd()
 	if err != nil {
 		errMsg := errors.New("Problem with getting current directory :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Info(errMsg.Error())
 		return errMsg
 	}
 
-	log.Println("Extracting data from created JSON files")
+	tf.logger.Info("Extracting data from created JSON files")
 	jsonResult := make(map[string]map[string]string, len(outputFileNames))
 	for _, name := range outputFileNames {
 		jsonFileName := name + ".json"
-		log.Println("Working on ", jsonFileName)
+		tf.logger.Info(fmt.Sprintln("Working on ", jsonFileName))
 
 		pathToFile := filepath.Join(currDir, outputDirectory, jsonFileName)
 		jsonfile, err := os.Open(pathToFile)
 		if err != nil {
 			errMsg := errors.New("Problem opening JSON file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 		defer jsonfile.Close()
@@ -44,7 +42,7 @@ func VerifyTfData(
 		rawData, err := ioutil.ReadAll(jsonfile)
 		if err != nil {
 			errMsg := errors.New("Problem reading JSON file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 
@@ -52,7 +50,7 @@ func VerifyTfData(
 		err = json.Unmarshal(rawData, &result)
 		if err != nil {
 			errMsg := errors.New("Problem unmarshalling JSON file :: " + err.Error())
-			log.Println(errMsg)
+			tf.logger.Info(errMsg.Error())
 			return errMsg
 		}
 
@@ -60,23 +58,22 @@ func VerifyTfData(
 		for k, v := range result {
 			jsonResult[name][k] = fmt.Sprintf("%v", v)
 		}
-		log.Println("Done with ", jsonFileName)
+		tf.logger.Info(fmt.Sprintln("Done with ", jsonFileName))
 	}
-	log.Println("Extraction from JSON files completed")
+	tf.logger.Info("Extraction from JSON files completed")
 
-	log.Println("Beginning comparison between JSON file data and terraform file data")
+	tf.logger.Info("Beginning comparison between JSON file data and terraform file data")
 	tfResults := make(map[string]map[string]string, len(outputFileNames))
 	for _, name := range outputFileNames {
 		tfResults[name] = make(map[string]string)
 	}
 
-	err = extractTfFile(inputFileName, tfResults)
+	err = tf.extractTfFile(inputFileName, tfResults)
 	if err != nil {
 		errMsg := errors.New("Problem with extracting tf file :: " + err.Error())
-		log.Println(errMsg)
+		tf.logger.Info(errMsg.Error())
 		return errMsg
 	}
-	log.SetPrefix("[verifyTfData]")
 
 	for jsonK, jsonV := range jsonResult {
 		tfResult := tfResults[jsonK]
@@ -90,19 +87,21 @@ func VerifyTfData(
 					left,
 					right,
 				)
-				log.Println(errMsg.Error())
+				tf.logger.Info(errMsg.Error())
 				return errMsg
 			}
-			log.Printf(
-				"%s.json key, %s, is correct (JSON: %s vs TF: %s)\n",
-				jsonK,
-				tfK,
-				left,
-				right,
+			tf.logger.Info(
+				fmt.Sprintf(
+					"%s.json key, %s, is correct (JSON: %s vs TF: %s)\n",
+					jsonK,
+					tfK,
+					left,
+					right,
+				),
 			)
 		}
 	}
 
-	log.Println("Comparison between JSON and tf file was successful")
+	tf.logger.Info("Comparison between JSON and tf file was successful")
 	return nil
 }

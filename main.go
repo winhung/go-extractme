@@ -30,9 +30,8 @@ func init() {
 }
 
 func checkFilesExistence() error {
-	log.SetPrefix("[checkFilesExistence]")
-	log.Println("Checking if files exists...")
-	defer log.Println("Checking completed...")
+	log.Println("[checkFilesExistence]Checking if files exists...")
+	defer log.Println("[checkFilesExistence]Checking completed...")
 
 	var filenamesToCheck []string
 	filenamesToCheck = append(filenamesToCheck, inputFileName)
@@ -43,13 +42,13 @@ func checkFilesExistence() error {
 
 	currDir, err := os.Getwd()
 	if err != nil {
-		return errors.New("Problem with getting current directory :: " + err.Error())
+		return errors.New("[checkFilesExistence]Problem with getting current directory :: " + err.Error())
 	}
 
 	for _, filename := range filenamesToCheck {
 		fullPathToFile := filepath.Join(currDir, filename)
 		if _, err := commonutil.IsFileExist(fullPathToFile); err != nil {
-			return errors.New("Problem while checking if file exist :: " + err.Error())
+			return errors.New("[checkFilesExistence]Problem while checking if file exist :: " + err.Error())
 		}
 	}
 
@@ -60,62 +59,55 @@ func main() {
 
 	flag.Parse()
 
-	log.SetPrefix("[main]")
-
 	if len(outputFileNames) == 0 || len(inputFileName) == 0 {
-		log.Fatalln("Invalid arguments passed in. They cannot be empty.")
+		log.Fatalln("[main]Invalid arguments passed in. They cannot be empty.")
 	}
 
 	if !keepOriginal && len(replacementFileName) == 0 {
-		log.Fatalln("You specified to keep the original file with '-rfko true' but did not specify the file in '-rf'. Is this correct ?")
+		log.Fatalln("[main]You specified to keep the original file with '-rfko true' but did not specify the file in '-rf'. Is this correct ?")
 	}
 
 	err := checkFilesExistence()
 	if err != nil {
-		log.SetPrefix("[main]")
-		log.Fatalln(err.Error())
+		log.Fatalln("[main]", err.Error())
 	}
-	log.SetPrefix("[main]")
 
-	log.Println("Creating JSON files with the following names", outputFileNames)
+	log.Println("[main]Creating JSON files with the following names", outputFileNames)
 	outputFileNamess := strings.Split(outputFileNames, " ")
 	tfData := make(map[string]map[string]string, len(outputFileNamess))
 	for _, v := range outputFileNamess {
 		tfData[v] = make(map[string]string)
 	}
 
-	err = modterraform.Tfvar2json(inputFileName, outputDirectory, tfData)
+	tfer := modterraform.Create()
+
+	err = tfer.Tfvar2json(inputFileName, outputDirectory, tfData)
 	if err != nil {
-		log.SetPrefix("[main]")
-		log.Fatalln("Something wrong :: ", err)
+		log.Fatalln("[main]Something wrong :: ", err)
 	}
-	log.SetPrefix("[main]")
 
 	if toVerifyJSON {
-		log.Println("Verifying JSON file(s)...")
-		err = modterraform.VerifyTfData(outputFileNamess, outputDirectory, inputFileName)
+		log.Println("[main]Verifying JSON file(s)...")
+		err = tfer.VerifyTfData(outputFileNamess, outputDirectory, inputFileName)
 		if err != nil {
-			log.SetPrefix("[main]")
-			log.Fatalln("Something wrong while verifying data :: ", err)
+			log.Fatalln("[main]Something wrong while verifying data :: ", err)
 		}
-		log.Println("Verifying JSON file(s) COMPLETED")
+		log.Println("[main]Verifying JSON file(s) COMPLETED")
 	}
 
 	if len(replacementFileName) > 0 {
 		var logMsg string
 		if keepOriginal {
-			logMsg = fmt.Sprintf("Creating new file %s", replacementFileName)
+			logMsg = fmt.Sprintf("[main]Creating new file %s", replacementFileName)
 		} else {
-			logMsg = fmt.Sprintf("Replacing file %s", replacementFileName)
+			logMsg = fmt.Sprintf("[main]Replacing file %s", replacementFileName)
 		}
 		log.Println(logMsg)
 
-		err = modterraform.ReplaceTfContent(replacementFileName, tfData, keepOriginal)
+		err = tfer.ReplaceTfContent(replacementFileName, tfData, keepOriginal)
 		if err != nil {
-			log.SetPrefix("[main]")
-			log.Fatalln("Something wrong while workong on file :: ", err)
+			log.Fatalln("[main]Something wrong while workong on file :: ", err)
 		}
-		log.SetPrefix("[main]")
 		log.Println(logMsg, "COMPLETED")
 	}
 }
