@@ -1,13 +1,12 @@
 package commonutil
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 )
 
 func IsMapValid(target map[string]map[string]string) error {
 	if len(target) == 0 {
-		errMsg := errors.New("Empty map passed in")
-		return errMsg
+		return errors.New("Empty map passed in")
 	}
 
 	return nil

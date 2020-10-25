@@ -1,9 +1,10 @@
 package commonutil
 
 import (
-	"errors"
 	"fmt"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 func IsFileExist(filename string) (bool, error) {
