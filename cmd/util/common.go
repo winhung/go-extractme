@@ -7,14 +7,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-func IsFileExist(filename string) (bool, error) {
-	info, err := os.Stat(filename)
+func IsFileExist(fullPathToFile string) (bool, error) {
+	info, err := os.Stat(fullPathToFile)
 	if err != nil {
 		return false, err
 	}
 
 	if info.IsDir() {
-		errMsg := fmt.Errorf("'%s' is a directory", filename)
+		errMsg := fmt.Errorf("'%s' is a directory", fullPathToFile)
 		return false, errors.New(errMsg.Error())
 	}
 
