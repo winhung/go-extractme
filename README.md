@@ -1,4 +1,5 @@
 # go-extractme
+![Go](https://github.com/winhung/go-extractme/workflows/Go/badge.svg)
 Search and extract keywords to another file
 
 ## Installation
