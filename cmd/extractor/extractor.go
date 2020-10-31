@@ -2,8 +2,8 @@ package extractor
 
 import (
 	"fmt"
-	tfExt "go-extractme/src/extractor/terraform"
-	logger "go-extractme/src/util/logger"
+	tfExt "go-extractme/cmd/extractor/internal/terraform"
+	logger "go-extractme/cmd/util/logger"
 )
 
 type Extractor interface {

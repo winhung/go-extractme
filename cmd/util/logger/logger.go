@@ -1,7 +1,7 @@
 package logger
 
 import (
-	loggerzap "go-extractme/src/util/logger/zap"
+	loggerzap "go-extractme/cmd/util/logger/internal/zap"
 	"log"
 )
 

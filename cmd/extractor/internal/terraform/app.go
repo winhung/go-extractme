@@ -1,7 +1,7 @@
 package modterraform
 
 import (
-	logger "go-extractme/src/util/logger"
+	logger "go-extractme/cmd/util/logger"
 )
 
 type FileTerraform struct {

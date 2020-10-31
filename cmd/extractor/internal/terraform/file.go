@@ -3,7 +3,7 @@ package modterraform
 import (
 	"bufio"
 	"fmt"
-	commonutil "go-extractme/src/util"
+	commonutil "go-extractme/cmd/util"
 	"io/ioutil"
 	"os"
 	"path/filepath"

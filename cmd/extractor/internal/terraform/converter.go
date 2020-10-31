@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	commonutil "go-extractme/src/util"
+	commonutil "go-extractme/cmd/util"
 )
 
 func (tf *FileTerraform) ExtractTo(

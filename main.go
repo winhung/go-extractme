@@ -9,9 +9,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	extractor "go-extractme/src/extractor"
-	commonutil "go-extractme/src/util"
-	logger "go-extractme/src/util/logger"
+	extractor "go-extractme/cmd/extractor"
+	commonutil "go-extractme/cmd/util"
+	logger "go-extractme/cmd/util/logger"
 )
 
 var conversionType string
