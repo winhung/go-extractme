@@ -3,6 +3,10 @@
 
 Search and extract keywords to another file
 
+## Installation
+As of now, you will have to clone the repository out and build it manually.
+Just run `go build .` at where the `main.go` file is.
+
 ## Quick start
 Usage example: ./go-extractme -ct=tf2json -of="dev qe sit uat prd" -if=convertme.tf -verify=true -od=secrets -rf=variables.tf
 ### Compiled binaries
