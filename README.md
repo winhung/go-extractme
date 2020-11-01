@@ -9,8 +9,6 @@ Just run `go build .` at where the `main.go` file is.
 
 ## Quick start
 Usage example: ./go-extractme -ct=tf2json -of="dev qe sit uat prd" -if=convertme.tf -verify=true -od=secrets -rf=variables.tf
-### Compiled binaries
-[LINK HERE](http://google.com)
 
 ## Problem statement
 One day, i was given a task to extract sensitive data like username, passwords, API keys etc. from Terraform files into JSON files. Each of JSON file represented the environment they were going to be used in ( eg. Development(dev.json) , QA(qa.json), Production(prd.json) ). These JSON files then had to be encrypted with [git-crypt](https://github.com/AGWA/git-crypt) and the Terraform files that used to read those data, now had to be amended to read from the respective JSON files instead.
