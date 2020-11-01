@@ -51,7 +51,7 @@ jobs:
         continue-on-error: true
         working-directory: ./
         run: |
-          GOOS=$GOOS go build -trimpath -o caddy-"$GOOS"-amd64 2> /dev/null
+          GOOS=$GOOS go build -trimpath -o go-extractme-"$GOOS"-amd64 2> /dev/null
           if [ $? -ne 0 ]; then
             echo "::warning ::$GOOS Build Failed"
             exit 0
