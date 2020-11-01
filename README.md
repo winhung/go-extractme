@@ -1,5 +1,5 @@
 # go-extractme
-![Go](https://github.com/winhung/go-extractme/workflows/Go/badge.svg)
+![Build and Test](https://github.com/winhung/go-extractme/workflows/Build%20and%20Test/badge.svg?branch=main)
 
 Search and extract keywords to another file
 
