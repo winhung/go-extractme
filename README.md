@@ -1,9 +1,7 @@
 # go-extractme
 ![Go](https://github.com/winhung/go-extractme/workflows/Go/badge.svg)
-Search and extract keywords to another file
 
-## Installation
-`go get something`
+Search and extract keywords to another file
 
 ## Quick start
 Usage example: ./go-extractme -ct=tf2json -of="dev qe sit uat prd" -if=convertme.tf -verify=true -od=secrets -rf=variables.tf
