@@ -41,5 +41,5 @@ If this is something you are facing then this tool might be able to help you.
 
 
 ## Notes before using this tool
-Please ensure that all comments are removed.
-The file that you want to read, contains only the variables that needs to be converted into JSON file.
+From the file that you want to extract values from, please ensure that all comments are removed from it and
+it contains only the variables that needs to be converted into the JSON file.
