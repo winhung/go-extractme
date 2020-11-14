@@ -39,6 +39,11 @@ If this is something you are facing then this tool might be able to help you.
 | Terraform to JSON | tf2json |
 
 
+## Notes about this tool
+As of now it's just a tool to convert from tf to JSON, which makes it very limited.
+For the forseeable future, i will just be outputting the extracted values into JSON files.
+If there are other file types to be output, then it would need to be customized in the code and anybody is welcome to do it.
+
 
 ## Notes before using this tool
 From the file that you want to extract values from, please ensure that all comments are removed from it and
