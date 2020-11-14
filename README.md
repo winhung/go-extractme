@@ -39,6 +39,13 @@ If this is something you are facing then this tool might be able to help you.
 | Terraform to JSON | tf2json |
 
 
+## Sample folders to test extraction
+I have created a sample folder on how to use this tool in the hopes that it makes it easier for anybody to use it.
+In the sample folder, there's a sample.tf. Run this command from the root of this project, ./go-extractme -ct=tf2json -of="dev prd" -if=./sample/sample.tf -verify=true -od=./sample/output
+Next is you will find that within the sample folder, a folder called output will be created and in it, 2 JSON files created (dev.json, prd.json).
+What happened was the tool extracted the values from the sample.tf and output them into their respective files (dev.json or prd.json).
+Do try playing around with it to understand it better.
+
 ## Notes about this tool
 As of now it's just a tool to convert from tf to JSON, which makes it very limited.
 For the forseeable future, i will just be outputting the extracted values into JSON files.
